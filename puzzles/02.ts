@@ -1,5 +1,10 @@
-const testInput = `12 6 4 2 1`;
-// 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+const testInput = `7 6 4 2 1
+1 2 7 8 9
+9 7 6 2 1
+1 3 2 4 5
+8 6 4 4 1
+1 3 6 7 9`;
+// const testInput = '7 6 4 2 1';
 const puzzleInput = `42 44 47 49 51 52 54 52
 24 27 30 31 32 35 36 36
 80 82 85 86 87 90 94
@@ -1001,18 +1006,11 @@ const puzzleInput = `42 44 47 49 51 52 54 52
 24 22 21 19 16 15 13 12
 61 64 66 69 71 72 75 77`;
 
-// split into lines (reports) // TODO: extract out file reading
-// split line into levels (digits separated by space)
-// iterate over levels
-// if greater than, all must be greater than
-// if less than, all must be less than
-// increase or decrease must be 1-3
 
 function splitLines(input: string) {
     return input.split(`\n`)
 }
 
-// console.log(splitLines(testInput))
 
 function isSafelyIncreasing(current: number, next: number) {
     return next - current >= 1
@@ -1024,70 +1022,38 @@ function isSafelyDecreasing(current: number, next: number) {
         && current - next <= 3;
 }
 
+
 function countSafeReports(reportInput: string[]) {
     const reports = reportInput.map(x => x.split(' ').map(x => Number(x)));
     let count = 0;
-
+    
     for (const report of reports) {
-        let current: number = report.pop()!;
-        let next: number | undefined = report.pop();
-        let isIncreasing = next && current < next;
+        let isIncreasing = report[0] < report[1];
         let isReportSafe = true;
-        let wasProblemDampened = false;
-        let isFirst = true;
-
-        while (current && isReportSafe) {
-            if (!next) break;
-
-            if (isIncreasing) {
+        
+        for (let i = 0; i < report.length; i++) {
+            const current = report[i];
+            const next = report[i + 1];
+            
+            if (isIncreasing && next) {
                 if (!isSafelyIncreasing(current, next)) {
-                    if (wasProblemDampened) {
-                        isReportSafe = false;
-                    } else {
-                        if (isFirst) {
-                            wasProblemDampened = true;
-                        } else {
-                            next = report.pop();
-                            if (!next) break;
-                            if (!isSafelyIncreasing(current, next)) {
-                                isReportSafe = false;
-                            } else {
-                                wasProblemDampened = true;
-                            }
-                        }
-                    }
+                    isReportSafe = false;
                 }
-            } else {
+            } else if (next) {
                 if (!isSafelyDecreasing(current, next)) {
-                    if (wasProblemDampened) {
-                        isReportSafe = false;
-                    } else {
-                        if (isFirst) {
-                            wasProblemDampened = true;
-                        } else {
-                            next = report.pop();
-                            if (!next) break;
-                            if (!isSafelyDecreasing(current, next)) {
-                                isReportSafe = false;
-                            } else {
-                                wasProblemDampened = true;
-                            }
-                        }
-                    }
+                    isReportSafe = false;
                 }
             }
-            isFirst = false;
-            current = next;
-            next = report.pop();
+            
         }
-
         if (isReportSafe) {
-            ++count;
+            count++
         }
     }
 
     return count;
 }
 
-console.log(countSafeReports(splitLines(testInput)));
-console.log(countSafeReports(splitLines(puzzleInput)));
+
+// console.log(countSafeReports(splitLines(testInput)));
+// console.log(countSafeReports(splitLines(puzzleInput)));
