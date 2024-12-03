@@ -4,7 +4,7 @@ const testInput = `7 6 4 2 1
 1 3 2 4 5
 8 6 4 4 1
 1 3 6 7 9`;
-// const testInput = '7 6 4 2 1';
+
 const puzzleInput = `42 44 47 49 51 52 54 52
 24 27 30 31 32 35 36 36
 80 82 85 86 87 90 94
@@ -1006,11 +1006,11 @@ const puzzleInput = `42 44 47 49 51 52 54 52
 24 22 21 19 16 15 13 12
 61 64 66 69 71 72 75 77`;
 
+const unsafeReports: number[][] = [];
 
 function splitLines(input: string) {
     return input.split(`\n`)
 }
-
 
 function isSafelyIncreasing(current: number, next: number) {
     return next - current >= 1
@@ -1022,19 +1022,21 @@ function isSafelyDecreasing(current: number, next: number) {
         && current - next <= 3;
 }
 
+function splitReports(reportInput: string[]): number[][] {
+    return reportInput.map(x => x.split(' ').map(x => Number(x)));
+}
 
-function countSafeReports(reportInput: string[]) {
-    const reports = reportInput.map(x => x.split(' ').map(x => Number(x)));
+function countSafeReports(reports: number[][]) {
     let count = 0;
-    
+
     for (const report of reports) {
         let isIncreasing = report[0] < report[1];
         let isReportSafe = true;
-        
+
         for (let i = 0; i < report.length; i++) {
             const current = report[i];
             const next = report[i + 1];
-            
+
             if (isIncreasing && next) {
                 if (!isSafelyIncreasing(current, next)) {
                     isReportSafe = false;
@@ -1044,16 +1046,49 @@ function countSafeReports(reportInput: string[]) {
                     isReportSafe = false;
                 }
             }
-            
+
         }
         if (isReportSafe) {
             count++
+        } else {
+            unsafeReports.push(report);
         }
     }
 
     return count;
 }
 
+function doubleCheckUnsafeReports(reports: number[][]) {
+    
+    let count = 0;
+    for (const report of reports) {
 
-// console.log(countSafeReports(splitLines(testInput)));
-// console.log(countSafeReports(splitLines(puzzleInput)));
+        // remove each char, run through count safe reports
+        const fourLevelReports: number[][] = [];
+
+        for (let i = 0; i < report.length; i++) {
+            if (i === 0) {
+                fourLevelReports.push(report.slice(1));
+            } else {
+                const start = report.slice(0, i);
+                const end = report.slice(i + 1);
+                const slicedReport = [...start, ...end];
+                fourLevelReports.push(slicedReport)
+            }
+        }
+
+        if (countSafeReports(fourLevelReports) > 0) {
+            count ++;
+        }
+
+    }
+
+
+    return count;
+}
+
+// console.log(doubleCheckUnsafeReports([]));
+// console.log(doubleCheckUnsafeReports(splitReports(splitLines(puzzleInput))));
+// console.log(countSafeReports(splitReports(splitLines(testInput))));
+// console.log(countSafeReports(splitReports(splitLines(puzzleInput))));
+// console.log(unsafeReports.length)
