@@ -17,7 +17,9 @@ rules.map(x => {
 
 
 const jobs = printJob.map(x => x.split(','));
-let sum = 0;
+const invalidJobs: string[][] = []
+let validJobSum = 0;
+let reorderedJobSum = 0;
 
 for (const job of jobs) {
     let isValid = true;
@@ -35,9 +37,24 @@ for (const job of jobs) {
 
     if (isValid) {
         const middleElement = job[Math.floor(job.length / 2)]
-        sum += Number(middleElement)
-    } 
-
+        validJobSum += Number(middleElement)
+    } else {
+        invalidJobs.push(job);
+    }
 }
 
-// sum;
+
+
+for (const job of invalidJobs) {
+    job.sort((current, next) => {
+        if (orderingMap[next] && orderingMap[next].includes(current)) return 1;
+        else return -1;
+    })
+
+    const middleElement = job[Math.floor(job.length / 2)];
+    reorderedJobSum += Number(middleElement);
+}
+
+
+// reorderedJobSum; // 4077
+// sum; // 5129
