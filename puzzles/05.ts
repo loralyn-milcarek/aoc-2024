@@ -1,31 +1,21 @@
 import { readFileSync } from 'fs';
 
-const fileContent = readFileSync('input/05.txt', 'utf-8');
-
-const rows = fileContent.split('\n');
-const breakIndex = rows.indexOf('');
-const rules = rows.slice(0, breakIndex);
-const printJob = rows.slice(breakIndex + 1);
-
+const fileContent = readFileSync('input/05.txt', 'utf-8').split('\n\n');
+const rules = fileContent[0].split('\n').map(x => x.split('|'));
+const jobs = fileContent[1].split('\n').map(x => x.split(','));
 const orderingMap: { key: string, value: string[] } = {} as { key: string, value: string[] };
-rules.map(x => {
-    const order = x.split('|');
-    orderingMap[order[0]]
-        ? orderingMap[order[0]].push(order[1])
-        : orderingMap[order[0]] = [order[1]];
+
+rules.map(rule => {
+    orderingMap[rule[0]]
+        ? orderingMap[rule[0]].push(rule[1])
+        : orderingMap[rule[0]] = [rule[1]];
 })
 
-
-const jobs = printJob.map(x => x.split(','));
-const invalidJobs: string[][] = []
-let validJobSum = 0;
-let reorderedJobSum = 0;
-
-for (const job of jobs) {
+const sum = jobs.reduce(([validSum, invalidSum], job) => {
     let isValid = true;
 
     const shallowJob = [...job]
-    while (shallowJob.length > 1) {
+    while (shallowJob.length > 2) {
         const current = shallowJob.pop();
         if (!current) break;
         const successors: string[] = orderingMap[current];
@@ -36,25 +26,15 @@ for (const job of jobs) {
     }
 
     if (isValid) {
-        const middleElement = job[Math.floor(job.length / 2)]
-        validJobSum += Number(middleElement)
+        return [validSum + Number(job[Math.floor(job.length / 2)]), invalidSum]
     } else {
-        invalidJobs.push(job);
+        job.sort((current, next) => {
+            return (orderingMap[next] && orderingMap[next].includes(current))
+                ? 1
+                : -1;
+        });
+        return [validSum, invalidSum + Number(job[Math.floor(job.length / 2)])];
     }
-}
+}, [0, 0]);
 
-
-
-for (const job of invalidJobs) {
-    job.sort((current, next) => {
-        if (orderingMap[next] && orderingMap[next].includes(current)) return 1;
-        else return -1;
-    })
-
-    const middleElement = job[Math.floor(job.length / 2)];
-    reorderedJobSum += Number(middleElement);
-}
-
-
-// reorderedJobSum; // 4077
-// sum; // 5129
+sum; // [5129, 4077]
