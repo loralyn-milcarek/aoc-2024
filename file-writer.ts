@@ -9,10 +9,7 @@ const writeCurrentDayFiles = () => {
 
   fs.writeFileSync(
     `puzzles/${fileDate}.ts`,
-    `import { readFileSync } from 'fs';
-
-const fileContent = readFileSync(\`${inputFileName}\`, 'utf-8');
-`
+    `import { readFileSync } from 'fs';\n\nconst fileContent = readFileSync('${inputFileName}', 'utf-8');`
   );
 
   fs.writeFileSync(inputFileName, '');
