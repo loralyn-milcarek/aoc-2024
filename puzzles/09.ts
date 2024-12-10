@@ -4,6 +4,9 @@ const fileContent = readFileSync('input/09.txt', 'utf-8');
 
 const fileBlocks: (number | null)[] = [];
 
+// ------
+// PART 1
+// ------
 function createFileBlocks() {
     let id = 0;
     for (let i = 0; i < fileContent.length; i++) {
@@ -48,21 +51,31 @@ function fillEmptySpaces() {
     }
 }
 
+function calculateCheckSum() {
+    return fileBlocks.reduce((x, y, i) => {
+        if (x === null || y === null) return x;
+        return x + (y * i);
+    }, 0)
+}
+
+// createFileBlocks();
+// fillEmptySpaces();
+// console.log(calculateCheckSum()); // 1928, 6288707484810
+
+// ------
+// PART 2
+// ------
 function findValidSpace(size: number, end: number): number {
     let isValid = false;
     for (let i = 0; i < end; i++) {
-            if (fileBlocks[i] !== null) continue;
+        if (fileBlocks[i] !== null) continue;
 
-            for (let j = i; j <= i + size; j++) {
-                if (fileBlocks[j] !== null) {
-                    // isValid = false
-                    break;
-                }
+        const slice = fileBlocks.slice(i, i + size);
+        const validSpaces = slice.filter(x => x === null).length;
 
-                isValid = true;
-            }
-
-            if (isValid) return i;
+        if (validSpaces >= size) {
+            return i;
+        }
     }
 
     return -1;
@@ -106,19 +119,7 @@ function moveWholeFiles() {
     }
 }
 
-function calculateCheckSum() {
-    return fileBlocks.reduce((x, y, i) => {
-        if (x === null || y === null) return x;
-        return x + (y * i);
-    }, 0)
-}
 
-createFileBlocks();
-moveWholeFiles();
-console.log(fileBlocks)
-console.log(calculateCheckSum()); // 11387
-
-
-// console.log(findValidSpace(2, 20));
-// fillEmptySpaces();
-// console.log(calculateCheckSum()); // 1928, 6288707484810
+// createFileBlocks();
+// moveWholeFiles();
+// console.log(calculateCheckSum()); // 2858, 
