@@ -5,9 +5,7 @@ const fileContent = readFileSync('input/10.txt', 'utf-8');
 const grid = fileContent.split('\n').map(x => x.split('').map(x => Number(x)));
 
 const trailheadScores: number[] = [];
-
-let isDistinct = true;
-let isRating = false;
+let trailheadRating = 0;
 
 let nineCache = {} as { [key: number]: Set<number> }
 
@@ -28,11 +26,13 @@ const countNineCache = () => {
     return sum;
 };
 
-const rateTrailHead = () => {};
+const rateTrailHead = () => {
+    trailheadRating++;
+};
 
 const handleNine = (x: number, y: number) => {
-    if (isDistinct) addNineToCache(x, y);
-    if (isRating) rateTrailHead;
+    addNineToCache(x, y);
+    rateTrailHead();
 }
 
 const isNextValueThere = (current: number, x: number, y: number, xChange: number, yChange: number) => {
@@ -69,8 +69,8 @@ const traverseMap = () => {
 }
 
 
-console.log(traverseMap()); // 36, 737
-
+// console.log(traverseMap()); // 36, 737
+// console.log(trailheadRating); // 81, 1619
 
 
 
