@@ -3,10 +3,11 @@ import { readFileSync } from 'fs';
 const fileContent = readFileSync('input/10.txt', 'utf-8');
 
 const grid = fileContent.split('\n').map(x => x.split('').map(x => Number(x)));
-// grid;
 
-let ninesReached = 0;
 const trailheadScores: number[] = [];
+
+let isDistinct = true;
+let isRating = false;
 
 let nineCache = {} as { [key: number]: Set<number> }
 
@@ -27,45 +28,31 @@ const countNineCache = () => {
     return sum;
 };
 
-const isNextValueEast = (current: number, x: number, y: number) => {
-    if (grid[x][y + 1] === 9 && current === 8) {
-        addNineToCache(x, y + 1);
-        return false;
-    }
-    return grid[x][y + 1] === current + 1;
+const rateTrailHead = () => {};
+
+const handleNine = (x: number, y: number) => {
+    if (isDistinct) addNineToCache(x, y);
+    if (isRating) rateTrailHead;
 }
 
-const isNextValueSouth = (current: number, x: number, y: number) => {
-    if (grid[x + 1] && grid[x + 1][y] === 9 && current === 8) {
-        addNineToCache(x + 1, y);
-        return false;
-    }
-    return grid[x + 1]
-        && grid[x + 1][y] === current + 1;
-}
+const isNextValueThere = (current: number, x: number, y: number, xChange: number, yChange: number) => {
+    const newX = x + xChange;
+    const newY = y + yChange;
 
-const isNextValueWest = (current: number, x: number, y: number) => {
-    if (grid[x][y - 1] === 9 && current === 8) {
-        addNineToCache(x, y - 1);
+    if (current === 8
+        && grid[newX]
+        && grid[newX][newY] === 9) {
+            handleNine(newX, newY);
         return false;
     }
-    return grid[x][y - 1] === current + 1;
-}
-
-const isNextValueNorth = (current: number, x: number, y: number) => {
-    if (grid[x - 1] && grid[x - 1][y] === 9 && current === 8) {
-        addNineToCache(x - 1, y);
-        return false;
-    }
-    return grid[x - 1]
-        && grid[x - 1][y] === current + 1;
+    return grid[newX] && grid[newX][newY] === current + 1;
 }
 
 const findNextValue = (current: number, x: number, y: number) => {
-    if (isNextValueEast(current, x, y)) findNextValue(current + 1, x, y + 1);
-    if (isNextValueSouth(current, x, y)) findNextValue(current + 1, x + 1, y);
-    if (isNextValueWest(current, x, y)) findNextValue(current + 1, x, y - 1);
-    if (isNextValueNorth(current, x, y)) findNextValue(current + 1, x - 1, y);
+    if (isNextValueThere(current, x, y, 0, 1)) findNextValue(current + 1, x, y + 1);
+    if (isNextValueThere(current, x, y, 1, 0)) findNextValue(current + 1, x + 1, y);
+    if (isNextValueThere(current, x, y, 0, -1)) findNextValue(current + 1, x, y - 1);
+    if (isNextValueThere(current, x, y, -1, 0)) findNextValue(current + 1, x - 1, y);
 }
 
 const traverseMap = () => {
